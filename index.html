@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soundariya Leela M — Portfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">My Portfolio</h1>
+      <nav class="nav">
+        <a href="#bio">Bio</a>
+        <a href="#skills">Skills</a>
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO / BIO -->
+  <section id="bio" class="hero container">
+    <img src="images/profile.png" alt="Soundariya Leela M" class="profile-photo">
+    <div class="hero-text">
+      <h2>Hello, I'm Soundariya Leela M</h2>
+      <p>Computer Science Student | Fullstack Developer | Tech Enthusiast</p>
+      <a href="asset/resume.pdf" class="btn" download>Download Resume</a>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="container section">
+    <h2>Skills</h2>
+    <div class="skills-grid">
+      <div class="skill">
+        <h3>HTML & CSS</h3>
+        <div class="progress"><span style="width:80%"></span></div>
+      </div>
+      <div class="skill">
+        <h3>Java</h3>
+        <div class="progress"><span style="width:75%"></span></div>
+      </div>
+      <div class="skill">
+        <h3>Python</h3>
+        <div class="progress"><span style="width:80%"></span></div>
+      </div>
+      <div class="skill">
+        <h3>MongoDB</h3>
+        <div class="progress"><span style="width:75%"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="container section">
+    <h2>Experience</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>Internship - Java Development</h3>
+        <p class="meta">Emglitz Technologies — Jun 2025 to Jul 2025</p>
+        <p></p>Worked on developing a Department Store Billing System. My responsibilities included setting up the backend using Java Spring Boot, integrating MySQL databases, designing frontend components using React, and connecting APIs between frontend and backend.</p>
+      </article>
+      
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="container section">
+    <h2>Projects</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>1.DEPARTMENT STORE BILLING SYSTEM</h3>
+        <p class="meta">Jun-Jul 2025</p>
+        <p>A Java-based billing system that automates item selection and total calculation using switch-case logic, showcasing skills in Java, control structures, OOP basics, and user input handling.</p>
+        <a href="https://www.programiz.com/online-compiler/3puBLWASaY9vJ" class="card-link">Billing System</a>
+      </article>
+      <article class="card">
+        <h3>2.WINE QUALITY PREDICTION</h3>
+        <p class="meta">Mar-Apr 2025</p>
+        <p>Developed a wine quality prediction model using Python by applying ML algorithms and performing EDA, preprocessing, and visualization, showcasing skills in Pandas, NumPy, Scikit-learn, Matplotlib, and Seaborn.</p>
+        <a href="https://colab.research.google.com/drive/1_S8bWBMRph9PK7vB9jiqdgfcwdpO3kxC?usp=sharing" class="card-link">ML Model</a>
+      </article>
+      <article class="card">
+        <h3>3.MEDICAL SUPPORT-OLLAMA MODEL</h3>
+        <p class="meta">Aug 2025</p>
+        <p>Developed a Medical Customer Support AI Assistant using LLaMA and Ollama with a custom fine-tuned dataset, showcasing skills in Python, NLP, dataset preparation, AI chatbot development, and Linux/command-line tools.
+</p>
+        <a href="https://github.com/soundariyaleela/customer-support-Medical--ai" class="card-link">Ollama Model- Chatbot</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="container section">
+    <h2>Contact</h2>
+    <p>Email: <a href="mailto:soundariyaleela03@gmail.com">soundariyaleela03@gmail.com</a></p>
+    <p>Phone: +91-8438876015</p>
+    <form action="https://formspree.io/f/xdkqddop" method="POST" class="contact-form">
+      <label>
+        Name
+        <input type="text" name="name" required>
+      </label>
+      <label>
+        Email
+        <input type="email" name="_replyto" required>
+      </label>
+      <label>
+        Message
+        <textarea name="message" rows="4" required></textarea>
+      </label>
+      <button type="submit" class="btn">Send</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Soundariya Leela M — 
+        <a href="https://github.com/soundariyaleela" target="_blank">GitHub</a> | 
+        <a href="https://www.linkedin.com/in/soundariya-leela-m" target="_blank">LinkedIn</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
