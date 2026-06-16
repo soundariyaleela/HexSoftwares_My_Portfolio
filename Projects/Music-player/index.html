@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Music Player</title>
+  <link rel="stylesheet" href="styles.css">
+  
+</head>
+<body>
+
+<div class="player">
+
+  <!-- Header -->
+  <div class="player-header">
+    <h2 class="player-title">🎶Music Player</h2>
+
+    <button id="playlistToggle" title="Playlist" class="playlist-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="4" width="12" height="2" rx="1" fill="currentColor"/>
+        <rect x="3" y="10" width="12" height="2" rx="1" fill="currentColor"/>
+        <rect x="3" y="16" width="8" height="2" rx="1" fill="currentColor"/>
+        <polygon points="17,8 22,12 17,16" fill="currentColor"/>
+      </svg>
+    </button>
+
+  </div>
+
+
+  <!-- Cover -->
+  <img id="cover" class="cover" src="" alt="cover">
+
+  <!-- Song Info -->
+  <h2 id="title">Song Title</h2>
+  <p id="artist">Artist</p>
+
+  <!-- Progress -->
+  <div class="progress-area">
+    <span id="current">0:00</span>
+    <input type="range" id="progress" value="0">
+    <span id="duration">0:00</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button id="repeat">🔁</button>
+    <button id="prev">⏮</button>
+    <button id="play">▶</button>
+    <button id="next">⏭</button>
+    <button id="shuffle">🔀</button>
+    
+  </div>
+
+
+  <div class="volume-icons">
+    <i class="fa-solid fa-volume-low"></i>
+    <i class="fa-solid fa-volume-high"></i>
+  </div>
+
+
+</div>
+
+<!-- Playlist -->
+<div class="playlist-panel" id="playlistPanel">
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search song..." />
+    <span id="clearSearch">✖</span>
+  </div>
+
+
+  <ul id="playlist"></ul>
+</div>
+
+<audio id="audio"></audio>
+
+<script src="app.js"></script>
+</body>
+</html>
+
+
+
+

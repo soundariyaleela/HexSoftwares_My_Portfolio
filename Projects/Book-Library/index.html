@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNook | Personal Library</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Loading animation styles */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-right: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Book cover styles */
+        .book-cover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 60%, rgba(255,255,255,0.1) 100%);
+        }
+        
+        .book-cover i {
+            font-size: 2rem;
+            z-index: 1;
+        }
+        
+        .book-cover::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+        }
+        
+        /* Rating Modal Styles */
+        .rating-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .rating-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .rating-stars-select {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .rating-stars-select i {
+            font-size: 2.5rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rating-stars-select i:hover {
+            transform: scale(1.2);
+            color: #ffd700;
+        }
+
+        .rating-stars-select i.fas {
+            color: #ffd700;
+        }
+
+        .rating-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel, .btn-submit {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-cancel {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .btn-cancel:hover {
+            background: #ddd;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Animation for page transitions */
+        .page-transition {
+            animation: fadeSlide 0.3s ease;
+        }
+        
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Fix for empty state in currently reading */
+        #currently-reading .empty-state {
+            width: 100%;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        #currently-reading .btn-add {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px auto 0;
+        }
+        
+        #currently-reading .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        /* Progress bar small styles */
+        .progress-bar-small {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill-small {
+            height: 100%;
+            background: linear-gradient(to right, #4361ee, #4cc9f0);
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading">
+        <div class="spinner"></div>
+        <span>Loading BookNook...</span>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page" style="display: none;">
+        <div class="login-container">
+            <div class="login-left">
+                <div class="login-header">
+                    <div class="logo">
+                        <i class="fas fa-book-open"></i>
+                        <h1>BookNook</h1>
+                    </div>
+                    <p class="tagline">Your Personal Digital Library</p>
+                </div>
+                
+                <div class="login-form">
+                    <h2>Welcome Back</h2>
+                    <p class="subtitle">Sign in to access your personal library</p>
+                    
+                    <form id="loginForm">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="email" id="loginEmail" placeholder="Email address" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="Password" required>
+                            <button type="button" class="show-password" id="showPassword">
+                                
+                            </button>
+                        </div>
+                        
+                        <div class="remember-forgot">
+                            <label>
+                                <input type="checkbox" id="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-link" id="forgotPassword">Forgot password?</a>
+                        </div>
+                        
+                        <button type="submit" class="btn-login">Sign In</button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <div class="social-login">
+                        <button type="button" class="social-btn google" id="googleLogin">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button type="button" class="social-btn github" id="githubLogin">
+                            <i class="fab fa-github"></i> GitHub
+                        </button>
+                    </div>
+                    
+                    <p class="signup-link">
+                        Don't have an account? <a href="#" id="signupToggle">Sign up</a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="login-right">
+                <div class="welcome-message">
+                    <h2>Discover Your Next<br>Favorite Book</h2>
+                    <p>Join thousands of readers who organize, track, and review their personal libraries with BookNook.</p>
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Track reading progress</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-star"></i>
+                            <span>Rate and review books</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-users"></i>
+                            <span>Connect with readers</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="book-showcase">
+                    <div class="book-slide">
+                        <div class="book-cover-large">
+                            <div class="book-cover" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        </div>
+                        <div class="book-info-large">
+                            <h4>The Silent Patient</h4>
+                            <p>Alex Michaelides</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span>4.5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Signup Form -->
+        <div class="signup-form-overlay" id="signupOverlay" style="display: none;">
+            <div class="signup-form">
+                <button type="button" class="close-signup" id="closeSignup">&times;</button>
+                <h2>Create Account</h2>
+                <form id="signupForm">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="signupName" placeholder="Full name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="Email address" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
+                    </div>
+                    
+                    <div class="terms">
+                        <label>
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="privacy-link">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-signup">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-left">
+                    <div class="logo">
+                        <i class="fas fa-book-open"></i>
+                        <h1>BookNook</h1>
+                    </div>
+                    <div class="nav-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchBooks" placeholder="Search books, authors, categories...">
+                    </div>
+                </div>
+                
+                <div class="nav-right">
+                    <a href="#" class="nav-link active" data-page="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="#" class="nav-link" data-page="mybooks">
+                        <i class="fas fa-book"></i>
+                        <span>My Books</span>
+                    </a>
+                    <a href="#" class="nav-link" data-page="discover">
+                        <i class="fas fa-compass"></i>
+                        <span>Discover</span>
+                    </a>
+                    <a href="#" class="nav-link" data-page="stats">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Stats</span>
+                    </a>
+                    
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-avatar">
+                            <div class="avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="user-dropdown">
+                            <span class="user-name" id="userNameDisplay">Guest User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="#" data-page="profile"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#" data-page="settings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" data-page="help"><i class="fas fa-question-circle"></i> Help</a>
+                            <div class="divider"></div>
+                            <a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content Container -->
+        <div class="page-container">
+            <!-- Home Page (Default) -->
+            <div class="page-content active" id="homePage">
+                <div class="main-container">
+                    <!-- Sidebar -->
+                    <aside class="sidebar">
+                        <div class="sidebar-section">
+                            <h3>Quick Stats</h3>
+                            <div class="stats-mini">
+                                <div class="stat-mini">
+                                    <span class="stat-value" id="total-books">0</span>
+                                    <span class="stat-label">Total Books</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="stat-value" id="reading-now">0</span>
+                                    <span class="stat-label">Reading Now</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="stat-value" id="pages-read">0</span>
+                                    <span class="stat-label">Pages Read</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Add New Book</h3>
+                            <form id="book-form" class="add-book-form">
+                                <input type="text" placeholder="Book Title" id="book-title" required>
+                                <input type="text" placeholder="Author" id="book-author" required>
+                                <div class="form-row">
+                                    <input type="number" placeholder="Pages" id="book-pages" min="1" required>
+                                    <select id="book-category">
+                                        <option value="Fiction">Fiction</option>
+                                        <option value="Non-Fiction">Non-Fiction</option>
+                                        <option value="Science">Science</option>
+                                        <option value="Fantasy">Fantasy</option>
+                                        <option value="Mystery">Mystery</option>
+                                        <option value="Biography">Biography</option>
+                                        <option value="Self-Help">Self-Help</option>
+                                        <option value="Technology">Technology</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <select id="book-status">
+                                        <option value="reading">Currently Reading</option>
+                                        <option value="want">Want to Read</option>
+                                        <option value="read">Already Read</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-add-book">
+                                    <i class="fas fa-plus"></i> Add Book
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Reading Goal</h3>
+                            <div class="reading-goal">
+                                <div class="goal-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="goalProgressFill" style="width: 0%;"></div>
+                                    </div>
+                                    <span id="goalPercentage">0% Complete</span>
+                                </div>
+                                <p id="goalText">0 of 20 books this year</p>
+                            </div>
+                        </div>
+                        
+                        <div class="sidebar-section">
+                            <h3>Quick Actions</h3>
+                            <div class="quick-actions">
+                                <button type="button" class="btn-action" id="markAllReadBtn">
+                                    <i class="fas fa-check-double"></i> Mark All as Read
+                                </button>
+                                <button type="button" class="btn-action btn-danger" id="clearLibraryBtn">
+                                    <i class="fas fa-trash-alt"></i> Clear Library
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Main Content Area -->
+                    <main class="main-content">
+                        <!-- Hero Section -->
+                        <section class="hero-section">
+                            <div class="hero-content">
+                                <h2 id="welcomeMessage">Hello, Reader!</h2>
+                                <p id="heroDescription">Start your reading journey today.</p>
+                                <button type="button" class="btn-hero" id="quickAddBtn">
+                                    <i class="fas fa-plus"></i> Add Today's Reading
+                                </button>
+                            </div>
+                            <div class="hero-image">
+                                <div class="book-cover" style="width: 300px; height: 200px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                    <i class="fas fa-book-reader" style="font-size: 4rem;"></i>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Currently Reading Section -->
+                        <section class="section" id="currently-reading-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-book-open"></i> Currently Reading</h3>
+                                <a href="#" class="view-all" id="viewAllReading">View All <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                            <p class="section-subtitle">Books you're actively reading right now</p>
+                            <div class="books-carousel" id="currently-reading">
+                                <!-- Dynamic content will be inserted here -->
+                                <div class="empty-state">
+                                    <i class="fas fa-book-open"></i>
+                                    <p>You're not currently reading any books</p>
+                                    <button class="btn-add" id="addCurrentReadingBtn">
+                                        <i class="fas fa-plus"></i> Add a book
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Book Categories -->
+                        <section class="section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-tags"></i> Book Categories</h3>
+                            </div>
+                            <div class="categories-grid">
+                                <div class="category-card fiction" data-category="Fiction">
+                                    <i class="fas fa-hat-wizard"></i>
+                                    <h4>Fiction</h4>
+                                    <span id="fictionCount">0 books</span>
+                                </div>
+                                <div class="category-card non-fiction" data-category="Non-Fiction">
+                                    <i class="fas fa-globe"></i>
+                                    <h4>Non-Fiction</h4>
+                                    <span id="nonFictionCount">0 books</span>
+                                </div>
+                                <div class="category-card science" data-category="Science">
+                                    <i class="fas fa-flask"></i>
+                                    <h4>Science</h4>
+                                    <span id="scienceCount">0 books</span>
+                                </div>
+                                <div class="category-card fantasy" data-category="Fantasy">
+                                    <i class="fas fa-dragon"></i>
+                                    <h4>Fantasy</h4>
+                                    <span id="fantasyCount">0 books</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Recent Additions -->
+                        <section class="section" id="recent-books-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-clock"></i> Recent Additions</h3>
+                                <a href="#" class="view-all" id="viewAllRecent">View All <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                            <p class="section-subtitle">Latest books added to your personal library</p>
+                            <div class="books-grid" id="recent-books">
+                                <!-- Dynamic content will be inserted here -->
+                                <div class="empty-state">
+                                    <i class="fas fa-book"></i>
+                                    <p>No books in your library yet</p>
+                                    <p>Start by adding your first book!</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Recommendations Section -->
+                        <section class="section" id="recommendations-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-star"></i> Recommended For You</h3>
+                            </div>
+                            <p class="section-subtitle">Personalized suggestions based on your reading history</p>
+                            <div class="recommendations" id="recommendations">
+                                <!-- Dynamic content will be inserted here -->
+                                <div class="empty-state">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <p>Add books to get personalized recommendations</p>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            </div>
+
+            <!-- My Books Page -->
+            <div class="page-content" id="myBooksPage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-book"></i> My Books</h2>
+                    <p>Manage your entire book collection</p>
+                </div>
+                
+                <div class="books-filter">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All Books</button>
+                        <button class="filter-tab" data-filter="reading">Currently Reading</button>
+                        <button class="filter-tab" data-filter="want">Want to Read</button>
+                        <button class="filter-tab" data-filter="read">Already Read</button>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <select id="sortBooks">
+                            <option value="date">Sort by Date Added</option>
+                            <option value="title">Sort by Title</option>
+                            <option value="author">Sort by Author</option>
+                            <option value="rating">Sort by Rating</option>
+                        </select>
+                        <button class="btn-export" id="exportBtn">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="books-container">
+                    <div class="books-grid-large" id="allBooks">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discover Page -->
+            <div class="page-content" id="discoverPage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-compass"></i> Discover</h2>
+                    <p>Find your next favorite book</p>
+                </div>
+                
+                <div class="discover-sections">
+                    <section class="discover-section">
+                        <h3><i class="fas fa-fire"></i> Trending Now</h3>
+                        <div class="trending-books" id="trendingBooks">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </section>
+                    
+                    <section class="discover-section">
+                        <h3><i class="fas fa-users"></i> Community Favorites</h3>
+                        <div class="community-books" id="communityBooks">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </section>
+                    
+                    <section class="discover-section">
+                        <h3><i class="fas fa-random"></i> Browse by Genre</h3>
+                        <div class="genre-grid" id="genreGrid">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Stats Page -->
+            <div class="page-content" id="statsPage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-chart-line"></i> Reading Statistics</h2>
+                    <p>Track your reading progress and insights</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card large">
+                        <h3>Reading Overview</h3>
+                        <div class="stat-chart" id="readingChart">
+                            <!-- Chart will be inserted here -->
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>Reading progress chart</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Top Genres</h3>
+                        <div class="genre-stats" id="genreStats">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Monthly Progress</h3>
+                        <div class="monthly-stats" id="monthlyStats">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Reading Streak</h3>
+                        <div class="streak-display" id="streakDisplay">
+                            <div class="streak-number">0</div>
+                            <p>days in a row</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div class="page-content" id="profilePage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-user"></i> Profile</h2>
+                    <p>Manage your account settings</p>
+                </div>
+                <div class="page-message">
+                    <i class="fas fa-cogs" style="font-size: 3rem; color: #667eea;"></i>
+                    <h3>Profile Settings</h3>
+                    <p>This page is under construction. In a real application, you would be able to:</p>
+                    <ul>
+                        <li>Update your profile information</li>
+                        <li>Change your password</li>
+                        <li>Set reading preferences</li>
+                        <li>Manage notifications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page-content" id="settingsPage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-cog"></i> Settings</h2>
+                    <p>Customize your BookNook experience</p>
+                </div>
+                <div class="page-message">
+                    <i class="fas fa-sliders-h" style="font-size: 3rem; color: #667eea;"></i>
+                    <h3>Application Settings</h3>
+                    <p>Settings page would be implemented here with options for:</p>
+                    <ul>
+                        <li>Theme customization</li>
+                        <li>Reading goals</li>
+                        <li>Notification preferences</li>
+                        <li>Data backup</li>
+                        <li>Privacy settings</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Help Page -->
+            <div class="page-content" id="helpPage" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-question-circle"></i> Help & Support</h2>
+                    <p>Get help with BookNook</p>
+                </div>
+                <div class="page-message">
+                    <i class="fas fa-hands-helping" style="font-size: 3rem; color: #667eea;"></i>
+                    <h3>Need Help?</h3>
+                    <p>Help center would be implemented here with:</p>
+                    <ul>
+                        <li>FAQs and guides</li>
+                        <li>Contact support</li>
+                        <li>Tutorial videos</li>
+                        <li>Community forum</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <div class="logo">
+                        <i class="fas fa-book-open"></i>
+                        <h3>BookNook</h3>
+                    </div>
+                    <p>Your personal library in the cloud. Track, organize, and discover books.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-goodreads"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#" data-page="home">Home</a>
+                    <a href="#" data-page="mybooks">My Books</a>
+                    <a href="#" data-page="discover">Discover</a>
+                    <a href="#" data-page="stats">Stats</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#" data-page="help">Help Center</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Community</a>
+                    <a href="#">Contact Us</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe for book recommendations and tips</p>
+                    <div class="newsletter">
+                        <input type="email" id="newsletterEmail" placeholder="Your email">
+                        <button type="button" id="subscribeBtn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 BookNook. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="rating-modal-overlay" style="display: none;">
+        <div class="rating-modal">
+            <h3>Rate This Book</h3>
+            <p id="bookToRate">Book Title</p>
+            <div class="rating-stars-select">
+                <i class="far fa-star" data-rating="1"></i>
+                <i class="far fa-star" data-rating="2"></i>
+                <i class="far fa-star" data-rating="3"></i>
+                <i class="far fa-star" data-rating="4"></i>
+                <i class="far fa-star" data-rating="5"></i>
+            </div>
+            <div class="rating-actions">
+                <button type="button" class="btn-cancel" id="cancelRating">Cancel</button>
+                <button type="button" class="btn-submit" id="submitRating">Submit Rating</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

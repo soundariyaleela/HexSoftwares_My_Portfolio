@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h1 class="title">ROCK PAPER SCISSORS</h1>
+
+
+<div class="choices">
+    <span onclick="play('rock')">✊</span>
+    <span onclick="play('paper')">✋</span>
+    <span onclick="play('scissors')">✌️</span>
+</div>
+
+<div class="game-area">
+    <div class="panel">
+        <h2>You</h2>
+        <div id="userEmoji">❔</div>
+        <p>Round : <span id="userRound">0</span></p>
+        <p>Score : <span id="userScore">0</span></p>
+    </div>
+
+    <div class="panel">
+        <h2>Bot</h2>
+        <div id="botEmoji">❔</div>
+        <p>Round : <span id="botRound">0</span></p>
+        <p>Score : <span id="botScore">0</span></p>
+    </div>
+
+</div>
+
+<div class="result">
+    <h2 id="resultText">Result : </h2>
+</div>
+
+<div class="total-score">
+    <h2>Your Score : <span id="totalUser">0</span> | Bot Score : <span id="totalBot">0</span></h2>
+</div>
+
+<script>
+let userScore = 0;
+let botScore = 0;
+let round = 0;
+const MAX_ROUNDS = 10;
+
+function play(userChoice) {
+
+    if(round >= MAX_ROUNDS){
+        alert("Game Over! Refresh the page to play again.");
+        return;
+    }
+
+    const map = { rock:"✊", paper:"✋", scissors:"✌️" };
+    const choices = ["rock","paper","scissors"];
+    const botChoice = choices[Math.floor(Math.random()*3)];
+
+    round++;
+
+    document.getElementById("userEmoji").innerText = map[userChoice];
+    document.getElementById("botEmoji").innerText = map[botChoice];
+    document.getElementById("userRound").innerText = round + " / " + MAX_ROUNDS;
+    document.getElementById("botRound").innerText = round + " / " + MAX_ROUNDS;
+
+    let result = "";
+
+    if(userChoice === botChoice){
+        result = "Draw!";
+    }
+    else if(
+        (userChoice==="rock" && botChoice==="scissors") ||
+        (userChoice==="paper" && botChoice==="rock") ||
+        (userChoice==="scissors" && botChoice==="paper")
+    ){
+        result = "You Win!";
+        userScore++;
+    }
+    else{
+        result = "Bot Wins!";
+        botScore++;
+    }
+
+    if(round === MAX_ROUNDS){
+        if(userScore > botScore) result = "🏆 You Won the Match!";
+        else if(botScore > userScore) result = "🤖 Bot Won the Match!";
+        else result = "🤝 Match Draw!";
+    }
+
+    document.getElementById("resultText").innerText = "Result : " + result;
+    document.getElementById("userScore").innerText = userScore;
+    document.getElementById("botScore").innerText = botScore;
+    document.getElementById("totalUser").innerText = userScore;
+    document.getElementById("totalBot").innerText = botScore;
+}
+</script>
+
+
+</body>
+</html>
